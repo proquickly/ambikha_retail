@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h2>Product Display</h2>
+
+<form id="search-form" action="/search" method="POST">
+  <input type="text" id="search-input" name="product_name" placeholder="Search products...">
+  <button type="submit" id="search-button">Search</button>
+</form>
+
+{% if product %}
+<div id="product-details" class="product-card">
+  <h3>{{ product.name }}</h3>
+  <p>{{ product.description }}</p>
+  <p>Price: ${{ product.price }}</p>
+  <p>In Stock: {{ product.stock }}</p>
+
+  <form action="/add_to_cart" method="POST">
+    <input type="hidden" name="product_name" value="{{ product.name }}">
+    <input type="number" id="quantity" name="quantity" value="1" min="1" max="{{ product.stock }}">
+    <button type="submit" id="add-to-cart">Add to Cart</button>
+  </form>
+</div>
+{% else %}
+<div class="product-list">
+  {% for product in products %}
+  <div class="product-card">
+    <h3>{{ product.name }}</h3>
+    <p>{{ product.description }}</p>
+    <p>Price: ${{ product.price }}</p>
+    <p>In Stock: {{ product.stock }}</p>
+
+    <form action="/add_to_cart" method="POST">
+      <input type="hidden" name="product_name" value="{{ product.name }}">
+      <input type="number" id="quantity" name="quantity" value="1" min="1" max="{{ product.stock }}">
+      <button type="submit" class="add-to-cart">Add to Cart</button>
+    </form>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if session.get('cart', []) %}
+<div class="cart-summary">
+  <h3>Your Cart</h3>
+  <ul>
+    {% for item in session.get('cart', []) %}
+    <li>{{ item.name }} (x{{ item.quantity }}) - ${{ item.price * item.quantity }}</li>
+    {% endfor %}
+  </ul>
+  <button id="checkout" onclick="window.location='/checkout'">Checkout</button>
+  <button onclick="window.location='/clear_cart'">Clear Cart</button>
+</div>
+{% endif %}
+{% endblock %}

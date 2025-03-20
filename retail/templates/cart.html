@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h2>Your Shopping Cart</h2>
+
+{% if session.get('cart', []) %}
+<div class="cart-details">
+  <table width="100%">
+    <thead>
+    <tr>
+      <th>Product</th>
+      <th>Quantity</th>
+      <th>Price</th>
+      <th>Subtotal</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in session.get('cart', []) %}
+    <tr>
+      <td>{{ item.name }}</td>
+      <td>{{ item.quantity }}</td>
+      <td>${{ item.price }}</td>
+      <td>${{ item.price * item.quantity }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+    <tfoot>
+    <tr>
+      <td colspan="3"><strong>Total</strong></td>
+      <td><strong>${{ total }}</strong></td>
+    </tr>
+    </tfoot>
+  </table>
+
+  <div class="cart-actions">
+    <button id="checkout" onclick="window.location='/checkout'">Checkout</button>
+    <button onclick="window.location='/clear_cart'">Clear Cart</button>
+    <button onclick="window.location='/'">Continue Shopping</button>
+  </div>
+</div>
+{% else %}
+<p>Your cart is empty.</p>
+<button onclick="window.location='/'">Continue Shopping</button>
+{% endif %}
+{% endblock %}
