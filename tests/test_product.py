@@ -71,40 +71,34 @@ def test_webpage_crashes_upon_clicking_the_checkout_button():
 # Fixtures
 @pytest.fixture(scope="function")
 def browser():
-    """Selenium webdriver fixture with chrome headless mode."""
-    options = Options()
-    options.add_argument("--headless")
-    options.add_argument("--window-size=1920,1080")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--no-sandbox")
+    """Set up and tear down the WebDriver using Chrome."""
+    # Initialize Chrome WebDriver
+    options = webdriver.ChromeOptions()
 
-    # Handle the case where we're running in CI/CD or environments without Chrome
+    # You can uncomment these options if needed for headless testing
+    # options.add_argument("--headless")  # Run headless for CI environments
+    # options.add_argument("--no-sandbox")
+    # options.add_argument("--disable-dev-shm-usage")
+
+    # Ensure we're using Chrome
+    driver = webdriver.Chrome(options=options)
+
+    # Set window size
+    driver.set_window_size(1366, 768)
+
+    # Set implicit wait for all elements
+    driver.implicitly_wait(10)
+
+    # Navigate to the base URL
+    driver.get(BASE_URL)
+
+    # Yield the driver to the test
     try:
-        driver = webdriver.Chrome(options=options)
-    except Exception as e:
-        print(f"Chrome driver initialization failed: {e}")
-        # Try with Firefox if Chrome is not available
-        try:
-            from selenium.webdriver.firefox.options import \
-                Options as FirefoxOptions
-            firefox_options = FirefoxOptions()
-            firefox_options.add_argument("--headless")
-            driver = webdriver.Firefox(options=firefox_options)
-        except Exception as e:
-            print(f"Firefox driver initialization failed: {e}")
-            # If both Chrome and Firefox fail, try with Safari (on macOS)
-            if os.name == 'posix':
-                try:
-                    driver = webdriver.Safari()
-                except Exception as e:
-                    print(f"Safari driver initialization failed: {e}")
-                    raise
-            else:
-                raise
+        yield driver
+    finally:
+        # Ensure browser is closed even if tests fail
+        driver.quit()
 
-    driver.implicitly_wait(5)  # Wait up to 5 seconds for elements to appear
-    yield driver
-    driver.quit()
 
 
 def find_element_safely(browser, by, value, timeout=10):
